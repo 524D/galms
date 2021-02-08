@@ -30,9 +30,9 @@ CPM
 `)},
 			want: Fasta{
 				[]Prot{
-					{ID: "BLABLA", desc: "Something", seq: "ACDEFGH"},
-					{ID: "BLA2", desc: "", seq: "EEEY"},
-					{ID: "DUMMY_ID_3", desc: "", seq: "WEARECPM"},
+					{id: "BLABLA", desc: "Something", seq: "ACDEFGH"},
+					{id: "BLA2", desc: "", seq: "EEEY"},
+					{id: "DUMMY_ID_3", desc: "", seq: "WEARECPM"},
 				},
 			},
 			wantErr: false,
@@ -43,7 +43,7 @@ CPM
 AHAH`)},
 			want: Fasta{
 				[]Prot{
-					{ID: "TEST2", desc: "No newline at end", seq: "AHAH"},
+					{id: "TEST2", desc: "No newline at end", seq: "AHAH"},
 				},
 			},
 			wantErr: false,
@@ -55,7 +55,7 @@ HAHA
 `)},
 			want: Fasta{
 				[]Prot{
-					{ID: "TEST3", desc: "After some spaces and tab", seq: "HAHA"},
+					{id: "TEST3", desc: "After some spaces and tab", seq: "HAHA"},
 				},
 			},
 			wantErr: false,
@@ -70,12 +70,25 @@ HAHA
 `)},
 			want: Fasta{
 				[]Prot{
-					{ID: "TEST4", desc: "Spaces in/around seq", seq: "HADIHINAH"},
+					{id: "TEST4", desc: "Spaces in/around seq", seq: "HADIHINAH"},
 				},
 			},
 			wantErr: false,
 		},
-
+		{
+			name: "PEFF header",
+			args: args{reader: strings.NewReader(`
+# This ain't no PEFF file!
+>TEST5 Blabla
+HAHAHA
+`)},
+			want: Fasta{
+				[]Prot{
+					{id: "TEST5", desc: "Blabla", seq: "HAHAHA"},
+				},
+			},
+			wantErr: false,
+		},
 		// FIXME: Add test that generates error
 	}
 	for _, tt := range tests {

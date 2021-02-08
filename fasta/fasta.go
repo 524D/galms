@@ -15,13 +15,13 @@ type Fasta struct {
 
 // Prot single entry (identifier, description and sequence)
 type Prot struct {
-	ID   string
+	id   string
 	desc string
 	seq  string
 }
 
 func appendProt(prot Prot, fasta *Fasta) {
-	if prot.ID != `` || prot.desc != `` || prot.seq != `` {
+	if prot.id != `` || prot.desc != `` || prot.seq != `` {
 		fasta.prot = append(fasta.prot, prot)
 	}
 }
@@ -35,15 +35,17 @@ func Read(reader io.Reader) (Fasta, error) {
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		l := scanner.Text()
-		if strings.HasPrefix(l, ">") {
+		if strings.HasPrefix(l, "#") {
+			// Skip PEFF header
+		} else if strings.HasPrefix(l, ">") {
 			appendProt(prot, &fasta)
 			m := re.FindStringSubmatch(l)
 			if m == nil || len(m) < 2 || m[1] == `` {
 				// Parsing ID/description failed
 				// Make up a fake ID
-				prot.ID = `DUMMY_ID_` + strconv.FormatInt(int64(len(fasta.prot))+1, 10)
+				prot.id = `DUMMY_ID_` + strconv.FormatInt(int64(len(fasta.prot))+1, 10)
 			} else {
-				prot.ID = m[1]
+				prot.id = m[1]
 				if len(m) >= 3 {
 					prot.desc = m[2]
 				} else {
@@ -66,4 +68,24 @@ func Read(reader io.Reader) (Fasta, error) {
 // Write writes a new FASTA file to an io.writer
 func (f *Fasta) Write(writer io.Writer) error {
 	return nil
+}
+
+// Prots returns a slice with all proteins in a fasta file
+func (f *Fasta) Prots() []Prot {
+	return f.prot
+}
+
+// ID returns the protein ID
+func (p *Prot) ID() string {
+	return p.id
+}
+
+// Description returns the protein description
+func (p *Prot) Description() string {
+	return p.desc
+}
+
+// Sequence returns the proten sequence
+func (p *Prot) Sequence() string {
+	return p.seq
 }
