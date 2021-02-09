@@ -9,21 +9,21 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"math"
+	"regexp"
+	"strconv"
 
 	"golang.org/x/net/html/charset"
 )
 
-func (mzXML *MzXML) Read(reader io.Reader) error {
-	mzXML.decoder = xml.NewDecoder(reader)
-	mzXML.decoder.CharsetReader = charset.NewReaderLabel
-	err := mzXML.decoder.Decode(&mzXML.content)
+func (f *MzXML) Read(reader io.Reader) error {
+	f.decoder = xml.NewDecoder(reader)
+	f.decoder.CharsetReader = charset.NewReaderLabel
+	err := f.decoder.Decode(&f.content)
 	if err != nil {
 		return nil
 	}
-	err = mzXML.traverseScan()
-	log.Println(&mzXML.content)
+	err = f.traverseScan()
 	return err
 }
 
@@ -32,7 +32,7 @@ func (mzXML *MzXML) Read(reader io.Reader) error {
 // This is not the same as the scan number that is specified
 // in the mzMXL file! To read a scan using the mzXML number,
 // use ReadScan(f, ScanIndex(f, scanNum))
-func ReadScan(f MzXML, scanIndex int64) ([]Peak, error) {
+func (f *MzXML) ReadScan(scanIndex int64) ([]Peak, error) {
 	if scanIndex < 0 || scanIndex >= f.content.Run.ScanCount {
 		return nil, ErrInvalidScanIndex
 	}
@@ -86,6 +86,57 @@ func ReadScan(f MzXML, scanIndex int64) ([]Peak, error) {
 	return p, nil
 }
 
+// NumSpecs returns the number of spectra
+func (f *MzXML) NumSpecs() int64 {
+	return int64(len(f.index2Scan))
+}
+
+// Regular expression to match "duration"
+var reDuration = regexp.MustCompile(`^PT(.*)S`)
+
+// RetentionTime returns the retention time of a spectrum
+// If no retention time is present, return -1
+func (f *MzXML) RetentionTime(scanIndex int64) (float64, error) {
+	if scanIndex < 0 || scanIndex >= f.NumSpecs() {
+		return 0.0, ErrInvalidScanIndex
+	}
+	rtStr := f.content.Run.Specs[scanIndex].RetentionTime
+
+	// Retention time is specified in "duration" format: https://www.w3schools.com/xml/schema_dtypes_date.asp
+	// For now, we only accept PT<float>S format
+	m := reDuration.FindStringSubmatch(rtStr)
+	if len(m) <= 1 {
+		return 0.0, ErrInvalidFormat
+	}
+	rt, err := strconv.ParseFloat(m[1], 64)
+	if err != nil {
+		return 0.0, err
+	}
+	return rt, nil
+}
+
+// Centroid returns true is the spectrum contains centroid peaks
+// In mzXML, centroided applied to the whole file, not individual spectra.
+// For compatibility with mzML, we keep the same interface
+func (f *MzXML) Centroid(scanIndex int64) (bool, error) {
+	if scanIndex < 0 || scanIndex >= f.NumSpecs() {
+		return false, ErrInvalidScanIndex
+	}
+	if len(f.content.Run.DataProcessing) > 0 {
+		return (f.content.Run.DataProcessing[0].Centroided != 0), nil
+	}
+	return false, nil
+}
+
+// MSLevel returns the MS Level of a spectrum
+// If no MS level is present, return 0
+func (f *MzXML) MSLevel(scanIndex int64) (int, error) {
+	if scanIndex < 0 || scanIndex >= f.NumSpecs() {
+		return 0, ErrInvalidScanIndex
+	}
+	return f.content.Run.Specs[scanIndex].MsLevel, nil
+}
+
 // traverseScan traverses all (recursive)scans and fills the
 // arrays f.index2id and f.id2Index to make scans accessible
 func (f *MzXML) traverseScan() error {
@@ -125,7 +176,7 @@ func (f *MzXML) ScanIndex(scanID int64) (int64, error) {
 	if index, ok := f.id2Index[scanID]; ok {
 		return index, nil
 	}
-	return 0, ErrInvalidScanId
+	return 0, ErrInvalidScanID
 }
 
 // ScanID converts a scan index (used to access the scan data) into a scan id
