@@ -118,6 +118,15 @@ type scan struct {
 	FragScans         []scan  `xml:"scan,omitEmpty"`
 }
 
+// <scan num="9" retentionTime="PT5.16998400S" polarity="+" msLevel="2" peaksCount="104" lowMz="121.17511749" highMz="669.60003662" basePeakMz="355.42813110" basePeakIntensity="16858.51367188" totIonCurrent="199931.18437386">
+// <precursorMz precursorIntensity="25302.23828125">353.31530762</precursorMz>
+// <peaks precision="32" byteOrder="network" pairOrder="m/z-int">
+
+type precursorMz struct {
+	PrecursorIntensity float64 `xml:"precursorIntensity,attr,omitEmpty"`
+	MzStr              string  `xml:",chardata"`
+}
+
 type peaks struct {
 	Precision       int64  `xml:"precision,attr,omitEmpty"`
 	ByteOrder       string `xml:"byteOrder,attr,omitEmpty"`
@@ -127,6 +136,7 @@ type peaks struct {
 }
 
 var (
-	ErrInvalidScanId    = errors.New("mzxml: invalid scan id")
+	ErrInvalidScanID    = errors.New("mzxml: invalid scan id")
 	ErrInvalidScanIndex = errors.New("mzxml: invalid scan index")
+	ErrInvalidFormat    = errors.New("mzxml: invalid data format")
 )
