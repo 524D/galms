@@ -1,4 +1,4 @@
-module github.com/524D/gomztal
+module github.com/524D/galms
 
 go 1.15
 
