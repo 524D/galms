@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -14,12 +15,12 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "gomztal",
-	Short: "Mass Spectrometry tools build on the gomztal library",
-	Long: `gomztal contains a collection of Mass Spectrometry tools.
+	Use:   "galms",
+	Short: "Mass Spectrometry tools build on the galms library",
+	Long: `galms (Go App and Library for Mass Spectrometry) contains a collection of Mass Spectrometry tools.
 
-The tools are usefull in their own right, but also serve as a demonstration
-of the gomztal library.`,
+The tools are useful in their own right, but also serve as a demonstration
+of the galms library.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
@@ -28,6 +29,7 @@ of the gomztal library.`,
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -41,7 +43,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gomztal.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.galms.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -61,9 +63,9 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".gomztal" (without extension).
+		// Search config in home directory with name ".galms" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".gomztal")
+		viper.SetConfigName(".galms")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
