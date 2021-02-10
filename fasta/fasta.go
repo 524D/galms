@@ -2,6 +2,7 @@ package fasta
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"regexp"
 	"strconv"
@@ -20,9 +21,9 @@ type Prot struct {
 	seq  string
 }
 
-func appendProt(prot Prot, fasta *Fasta) {
+func (f *Fasta) appendProt(prot Prot) {
 	if prot.id != `` || prot.desc != `` || prot.seq != `` {
-		fasta.prot = append(fasta.prot, prot)
+		f.prot = append(f.prot, prot)
 	}
 }
 
@@ -30,7 +31,7 @@ func appendProt(prot Prot, fasta *Fasta) {
 func Read(reader io.Reader) (Fasta, error) {
 	var fasta Fasta
 	var prot Prot
-	re := regexp.MustCompile(`>([^ \t]*)(?:[ \t]+(.*))?`)
+	re := regexp.MustCompile(`>([^ \t]*)(?:[ \t]+(.+)?)?`)
 
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
@@ -38,7 +39,7 @@ func Read(reader io.Reader) (Fasta, error) {
 		if strings.HasPrefix(l, "#") {
 			// Skip PEFF header
 		} else if strings.HasPrefix(l, ">") {
-			appendProt(prot, &fasta)
+			fasta.appendProt(prot)
 			m := re.FindStringSubmatch(l)
 			if m == nil || len(m) < 2 || m[1] == `` {
 				// Parsing ID/description failed
@@ -58,7 +59,7 @@ func Read(reader io.Reader) (Fasta, error) {
 			prot.seq += strings.TrimSpace(l)
 		}
 	}
-	appendProt(prot, &fasta)
+	fasta.appendProt(prot)
 
 	err := scanner.Err()
 
@@ -67,6 +68,30 @@ func Read(reader io.Reader) (Fasta, error) {
 
 // Write writes a new FASTA file to an io.writer
 func (f *Fasta) Write(writer io.Writer) error {
+	seqLineLen := 60
+	for _, p := range f.prot {
+		fmt.Fprintf(writer, ">%s\t%s\n", p.id, p.desc)
+		i := 0
+		l := ``
+		for _, a := range p.seq {
+			l += string(a)
+			i++
+			if i >= seqLineLen {
+				_, err := fmt.Fprintf(writer, "%s\n", l)
+				if err != nil {
+					return err
+				}
+				i = 0
+				l = ``
+			}
+		}
+		if l != `` {
+			_, err := fmt.Fprintf(writer, "%s\n", l)
+			if err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 
@@ -89,3 +114,6 @@ func (p *Prot) Description() string {
 func (p *Prot) Sequence() string {
 	return p.seq
 }
+
+// Translate converts genetic sequences into protain sequences
+// https://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=cgencodes#SG11
