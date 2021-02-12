@@ -29,21 +29,14 @@ type Elems struct {
 }
 
 // Read reads elements in JSON format from an io.Reader
-func Read(r io.Reader) ([]Element, error) {
-	var elements []Element
-
-	err := json.NewDecoder(r).Decode(&elements)
-	return elements, err
-}
-
-func Read1(r io.Reader) (Elems, error) {
+func Read(r io.Reader) (Elems, error) {
 	var e Elems
 
-	e.SymbolMap = make(map[string]int)
 	err := json.NewDecoder(r).Decode(&e.Elements)
 	if err != nil {
 		return e, err
 	}
+	e.SymbolMap = make(map[string]int)
 	for i, ei := range e.Elements {
 		e.SymbolMap[ei.Symbol] = i
 	}
@@ -53,7 +46,7 @@ func Read1(r io.Reader) (Elems, error) {
 
 // InitDefault parses the build-in list of elements
 func InitDefault() Elems {
-	e, err := Read1(strings.NewReader(defaultElementsJSON))
+	e, err := Read(strings.NewReader(defaultElementsJSON))
 	if err != nil {
 		// Should never happen
 		log.Fatal("Error reading build-in elements")
@@ -72,23 +65,23 @@ func (e *Elems) ElemIdx(shortName string) (int, error) {
 
 // Name returns the element name for a given element index
 func (e *Elems) Name(i int) (string, error) {
-	if i < 0 && i >= len(e.Elements) {
+	if i < 0 || i >= len(e.Elements) {
 		return ``, errors.New("Name: Index out of range")
 	}
 	return e.Elements[i].Name, nil
 }
 
-// Symbol returns the element name for a given element index
+// Symbol returns the element symbol for a given element index
 func (e *Elems) Symbol(i int) (string, error) {
-	if i < 0 && i >= len(e.Elements) {
+	if i < 0 || i >= len(e.Elements) {
 		return ``, errors.New("Symbol: Index out of range")
 	}
 	return e.Elements[i].Symbol, nil
 }
 
-// Isotopes retruns the isotopes of a specific element
+// Isotopes returns the isotopes of a specific element
 func (e *Elems) Isotopes(i int) ([]Isotope, error) {
-	if i < 0 && i >= len(e.Elements) {
+	if i < 0 || i >= len(e.Elements) {
 		return nil, errors.New("Isotopes: Index out of range")
 	}
 	return e.Elements[i].Isotope, nil
