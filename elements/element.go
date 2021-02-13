@@ -44,14 +44,14 @@ func Read(r io.Reader) (Elems, error) {
 	return e, err
 }
 
-// InitDefault parses the build-in list of elements
-func InitDefault() Elems {
+// New parses the build-in list of elements
+func New() *Elems {
 	e, err := Read(strings.NewReader(defaultElementsJSON))
 	if err != nil {
 		// Should never happen
 		log.Fatal("Error reading build-in elements")
 	}
-	return e
+	return &e
 }
 
 // ElemIdx converts an element string to an index

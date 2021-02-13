@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strconv"
 
-	"../elements"
+	"github.com/524D/galms/elements"
 )
 
 // This package parses chemical formula

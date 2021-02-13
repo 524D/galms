@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"../elements"
+	"github.com/524D/galms/elements"
 )
 
 func TestSimpleFormula(t *testing.T) {
@@ -12,7 +12,7 @@ func TestSimpleFormula(t *testing.T) {
 		f string
 		e *elements.Elems
 	}
-	elms := elements.InitDefault()
+	elms := elements.New()
 	tests := []struct {
 		name    string
 		args    args
@@ -21,7 +21,7 @@ func TestSimpleFormula(t *testing.T) {
 	}{
 		{
 			name: "Correct formula1",
-			args: args{`H2SO4`, &elms},
+			args: args{`H2SO4`, elms},
 			want: Molecule{
 				atoms: []AtomsCount{
 					{idx: 0, count: 2},
@@ -33,7 +33,7 @@ func TestSimpleFormula(t *testing.T) {
 		},
 		{
 			name: "Correct formula2",
-			args: args{`NaCl`, &elms},
+			args: args{`NaCl`, elms},
 			want: Molecule{
 				atoms: []AtomsCount{
 					{idx: 10, count: 1},
@@ -44,7 +44,7 @@ func TestSimpleFormula(t *testing.T) {
 		},
 		{
 			name: "Re occuring elements",
-			args: args{`H2C3OH`, &elms},
+			args: args{`H2C3OH`, elms},
 			want: Molecule{
 				atoms: []AtomsCount{
 					{idx: 0, count: 3},
@@ -56,7 +56,7 @@ func TestSimpleFormula(t *testing.T) {
 		},
 		{
 			name: "Incorrect formula1",
-			args: args{`NaCw`, &elms},
+			args: args{`NaCw`, elms},
 			want: Molecule{
 				atoms: []AtomsCount{
 					{idx: 10, count: 1},
@@ -66,7 +66,7 @@ func TestSimpleFormula(t *testing.T) {
 		},
 		{
 			name: "Incorrect formula2",
-			args: args{`Na3333333333333333333333333333`, &elms},
+			args: args{`Na3333333333333333333333333333`, elms},
 			want: Molecule{
 				atoms: nil,
 			},
@@ -91,14 +91,14 @@ func Test_initAA(t *testing.T) {
 	type args struct {
 		e *elements.Elems
 	}
-	elms := elements.InitDefault()
+	elms := elements.New()
 	tests := []struct {
 		name string
 		args args
 	}{
 		{
 			name: "Init test",
-			args: args{&elms},
+			args: args{elms},
 		},
 	}
 	for _, tt := range tests {
@@ -113,8 +113,8 @@ func TestChemicalFormula(t *testing.T) {
 		m Molecule
 		e *elements.Elems
 	}
-	elms := elements.InitDefault()
-	fh2o, _ := SimpleFormula("H2O", &elms)
+	elms := elements.New()
+	fh2o, _ := SimpleFormula("H2O", elms)
 	tests := []struct {
 		name    string
 		args    args
@@ -123,7 +123,7 @@ func TestChemicalFormula(t *testing.T) {
 	}{
 		{
 			name:    "Water test",
-			args:    args{fh2o, &elms},
+			args:    args{fh2o, elms},
 			want:    "H2O",
 			wantErr: false,
 		},
@@ -147,12 +147,12 @@ func TestAdd(t *testing.T) {
 		m1 Molecule
 		m2 Molecule
 	}
-	elms := elements.InitDefault()
-	fh2o, _ := SimpleFormula("H2O", &elms)
-	fcs, _ := SimpleFormula("CS", &elms)
-	fo, _ := SimpleFormula("O", &elms)
-	fh2cos, _ := SimpleFormula("H2COS", &elms)
-	fh2o2, _ := SimpleFormula("H2O2", &elms)
+	elms := elements.New()
+	fh2o, _ := SimpleFormula("H2O", elms)
+	fcs, _ := SimpleFormula("CS", elms)
+	fo, _ := SimpleFormula("O", elms)
+	fh2cos, _ := SimpleFormula("H2COS", elms)
+	fh2o2, _ := SimpleFormula("H2O2", elms)
 	tests := []struct {
 		name string
 		args args
@@ -182,8 +182,8 @@ func TestPepProt(t *testing.T) {
 	type args struct {
 		p string
 	}
-	elms := elements.InitDefault()
-	fcystine, _ := SimpleFormula("C3H5NOSH2O", &elms)
+	elms := elements.New()
+	fcystine, _ := SimpleFormula("C3H5NOSH2O", elms)
 
 	tests := []struct {
 		name    string
@@ -222,8 +222,8 @@ func TestAminoAcid(t *testing.T) {
 	type args struct {
 		aa byte
 	}
-	elms := elements.InitDefault()
-	fcystinenw, _ := SimpleFormula("C3H5NOS", &elms)
+	elms := elements.New()
+	fcystinenw, _ := SimpleFormula("C3H5NOS", elms)
 	tests := []struct {
 		name    string
 		args    args

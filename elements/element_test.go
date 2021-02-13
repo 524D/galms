@@ -59,8 +59,8 @@ import (
 // 	}
 // }
 
-func TestInitDefault(t *testing.T) {
-	got := InitDefault()
+func TestNew(t *testing.T) {
+	got := New()
 	if got.Elements[0].Name != `hydrogen` {
 		t.Errorf("InitDefault() = %s, want %s", got.Elements[0].Name, `hydrogen`)
 	}

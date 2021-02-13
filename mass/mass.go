@@ -3,8 +3,8 @@ package mass
 import (
 	"math"
 
-	"../elements"
-	"../molecule"
+	"github.com/524D/galms/elements"
+	"github.com/524D/galms/molecule"
 )
 
 // Peak contains the mass and abundance of one of the isotopes combinations of a molecule
@@ -28,7 +28,7 @@ func MinMax(m molecule.Molecule, e *elements.Elems) (Peak, Peak, error) {
 		min.Mass += iso[0].Mass * float64(count)
 		min.Abundance *= math.Pow(iso[0].Abundance, float64(count))
 		max.Mass += iso[len(iso)-1].Mass * float64(count)
-		min.Abundance *= math.Pow(iso[len(iso)-1].Abundance, float64(count))
+		max.Abundance *= math.Pow(iso[len(iso)-1].Abundance, float64(count))
 	}
 	return min, max, nil
 }
