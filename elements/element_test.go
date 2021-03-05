@@ -73,7 +73,7 @@ func TestRead(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    Elems
+		want    *Elems
 		wantErr bool
 	}{
 		{
@@ -81,7 +81,7 @@ func TestRead(t *testing.T) {
 			args: args{r: strings.NewReader(`
 [{"Symbol":"Na","Name":"sodium","Number":11,"Isotope":[{"Mass":22.98977,"Abundance":1}]}]
 `)},
-			want: Elems{
+			want: &Elems{
 				[]Element{
 					{
 						Symbol: "Na",
@@ -103,10 +103,7 @@ func TestRead(t *testing.T) {
 			args: args{r: strings.NewReader(`
 [{"Symbol":Na",'Name':"sodium","Number":11,"Isotope":[{"Mass":22.98977,"Abundance":1}]}]
 `)},
-			want: Elems{
-				nil,
-				nil,
-			},
+			want:    nil,
 			wantErr: true,
 		},
 	}

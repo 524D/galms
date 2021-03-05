@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"log"
 	"strings"
+	"sync"
 )
 
 // Element contains mass spec related information about an chemical element
@@ -28,30 +28,31 @@ type Elems struct {
 	SymbolMap map[string]int
 }
 
+var once sync.Once
+var defaultElms *Elems
+
 // Read reads elements in JSON format from an io.Reader
-func Read(r io.Reader) (Elems, error) {
+func Read(r io.Reader) (*Elems, error) {
 	var e Elems
 
 	err := json.NewDecoder(r).Decode(&e.Elements)
 	if err != nil {
-		return e, err
+		return nil, err
 	}
 	e.SymbolMap = make(map[string]int)
 	for i, ei := range e.Elements {
 		e.SymbolMap[ei.Symbol] = i
 	}
 
-	return e, err
+	return &e, err
 }
 
 // New parses the build-in list of elements
 func New() *Elems {
-	e, err := Read(strings.NewReader(defaultElementsJSON))
-	if err != nil {
-		// Should never happen
-		log.Fatal("Error reading build-in elements")
-	}
-	return &e
+	once.Do(func() {
+		defaultElms, _ = Read(strings.NewReader(defaultElementsJSON))
+	})
+	return defaultElms
 }
 
 // ElemIdx converts an element string to an index
