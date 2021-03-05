@@ -178,7 +178,7 @@ var fastaCmd = &cobra.Command{
 
 			fn, err := fuzzyNameFile(n, dataDir)
 			if err != nil {
-				log.Fatalf("%s is not a valid filename nor a fuzzy name")
+				log.Fatalf("%s is not a valid filename nor a fuzzy name", n)
 			}
 			file, err := os.Open(fn)
 			if err != nil {
@@ -228,6 +228,24 @@ func init() {
 	fastaCmd.PersistentFlags().StringP("contains", "c", "", "List proteins which contain the specified sequence")
 	fastaCmd.PersistentFlags().BoolP("update", "u", false, "Update FASTA file")
 
+	// Flag 'analyse':
+	// - print length/mass distribution distribution
+	// - print number of proteins in certain class,
+	//   e.g.:
+	//     with motif for export from cell, import golgi, zinc finger, multiple motifs in one prot
+	//       zinc-binding motif HEXXHXXGXXH
+	//       N-terminal secretory signal peptide and a prodomain with a conserved PRCGXPD motif
+	//     isoforms
+	//     phosphorilation/glycosylation patterns
+	// - print statistically significant sequence features, e.g. missing subsequence/regex, abundant subsequence/regex
+	// - digest (selectable, default tryptic)
+	//   for each peptides, print distribution of number of occurrences (unique)
+	//   print prots with no unique peptides (merging I and L)
+	//   print prots with no peptides that can be measured or uniquely identified, e.g. because of mass range, ionizability
+	//
+
+	// In Utils:
+	// Search MS1 molecule: search a molecules isotopic pattern in MS1. E.g. search different glycoforms of a glycosilated peptide
 }
 
 // UniprotURL converts a string with a taxonomy or common (species) name into a URL where the FASTA file can be downloaded

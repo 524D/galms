@@ -23,7 +23,7 @@ func MinMax(m molecule.Molecule, e *elements.Elems) (Peak, Peak, error) {
 		idx, count := a.IdxCount()
 		iso, err := e.Isotopes(idx)
 		if err != nil {
-			return Peak{}, Peak{}, nil
+			return Peak{}, Peak{}, err
 		}
 		min.Mass += iso[0].Mass * float64(count)
 		min.Abundance *= math.Pow(iso[0].Abundance, float64(count))
