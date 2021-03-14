@@ -21,14 +21,20 @@ type Prot struct {
 	seq  string
 }
 
-func (f *Fasta) appendProt(prot Prot) {
-	if prot.id != `` || prot.desc != `` || prot.seq != `` {
-		f.prot = append(f.prot, prot)
+// function that checks if sequence must be stored
+type Filter func(Prot) bool
+
+func (f *Fasta) appendProtFiltered(prot Prot, filter Filter, fArgs ...interface{}) {
+	if filter == nil || filter(prot) {
+		if prot.id != `` || prot.desc != `` || prot.seq != `` {
+			f.prot = append(f.prot, prot)
+		}
 	}
 }
 
-// Read reads an FASTA file from an io.Reader
-func Read(reader io.Reader) (Fasta, error) {
+// ReadFiltered reads an FASTA file from an io.Reader,
+// only storing the entries where the filter function returns 'true'
+func ReadFiltered(reader io.Reader, filter Filter) (Fasta, error) {
 	var fasta Fasta
 	var prot Prot
 	re := regexp.MustCompile(`>([^ \t]*)(?:[ \t]+(.+)?)?`)
@@ -39,7 +45,7 @@ func Read(reader io.Reader) (Fasta, error) {
 		if strings.HasPrefix(l, "#") {
 			// Skip PEFF header
 		} else if strings.HasPrefix(l, ">") {
-			fasta.appendProt(prot)
+			fasta.appendProtFiltered(prot, filter)
 			m := re.FindStringSubmatch(l)
 			if m == nil || len(m) < 2 || m[1] == `` {
 				// Parsing ID/description failed
@@ -59,11 +65,16 @@ func Read(reader io.Reader) (Fasta, error) {
 			prot.seq += strings.TrimSpace(l)
 		}
 	}
-	fasta.appendProt(prot)
+	fasta.appendProtFiltered(prot, filter)
 
 	err := scanner.Err()
 
 	return fasta, err
+}
+
+// Read reads an FASTA file from an io.Reader
+func Read(reader io.Reader) (Fasta, error) {
+	return ReadFiltered(reader, nil)
 }
 
 // Write writes a new FASTA file to an io.writer
@@ -110,10 +121,10 @@ func (p *Prot) Description() string {
 	return p.desc
 }
 
-// Sequence returns the proten sequence
+// Sequence returns the protein sequence
 func (p *Prot) Sequence() string {
 	return p.seq
 }
 
-// Translate converts genetic sequences into protain sequences
+// Translate converts genetic sequences into protein sequences
 // https://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=cgencodes#SG11

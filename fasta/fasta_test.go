@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"reflect"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -296,6 +297,55 @@ func TestFasta_Write(t *testing.T) {
 			}
 			if gotWriter := writer.String(); gotWriter != tt.wantWriter {
 				t.Errorf("Fasta.Write() = %v, want %v", gotWriter, tt.wantWriter)
+			}
+		})
+	}
+}
+
+func TestReadFiltered(t *testing.T) {
+	re := regexp.MustCompile(`A.*M`)
+	type args struct {
+		reader io.Reader
+		filter Filter
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    Fasta
+		wantErr bool
+	}{
+		{
+			name: "Only keep sequences matching regex `A.*M`",
+			args: args{reader: strings.NewReader(`>BLABLA Something
+ACDEFGH
+>BLA2  
+EEEY
+>
+WE
+ARE
+CPM
+`),
+				filter: func(p Prot) bool {
+					return re.Match([]byte(p.Sequence()))
+				},
+			},
+			want: Fasta{
+				[]Prot{
+					{id: "DUMMY_ID_1", desc: "", seq: "WEARECPM"},
+				},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ReadFiltered(tt.args.reader, tt.args.filter)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ReadFiltered() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ReadFiltered() = %v, want %v", got, tt.want)
 			}
 		})
 	}
