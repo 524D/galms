@@ -175,14 +175,17 @@ var fastaCmd = &cobra.Command{
 			if upd {
 				err = updateFASTA(n, dataDir)
 			}
+			if err != nil {
+				log.Fatalf("%v", err)
+			}
 
 			fn, err := fuzzyNameFile(n, dataDir)
 			if err != nil {
-				log.Fatalf("%s is not a valid filename nor a fuzzy name", n)
+				log.Fatalf("%s is not a valid filename nor a fuzzy name: %v", n, err)
 			}
 			file, err := os.Open(fn)
 			if err != nil {
-				log.Fatalf("Can't open file %s", args[0])
+				log.Fatalf("Can't open file %s: %v", args[0], err)
 			}
 			defer file.Close()
 
