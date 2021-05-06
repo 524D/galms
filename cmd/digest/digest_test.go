@@ -86,4 +86,26 @@ func TestDigestor_Cut(t *testing.T) {
 			}
 		})
 	}
+	rCutter := func(seq string, pos int) bool {
+		return (seq[pos-1] == 'R')
+	}
+	dRCutter := New(0, 0, nil, rCutter)
+	tests5 := []struct {
+		name string
+		args args
+		want []string
+	}{
+		{
+			name: "Special enzyme",
+			args: args{seq: `MKWVTFISLLFLFSSAYSRGVFRRDAHKSEVAHRFKDLGEENFKALVLIAFAQYLQQCPF`},
+			want: []string{`MKWVTFISLLFLFSSAYSR`, `GVFR`, `R`, `DAHKSEVAHR`, `FKDLGEENFKALVLIAFAQYLQQCPF`},
+		},
+	}
+	for _, tt := range tests5 {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := dRCutter.Cut(tt.args.seq); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Digestor.Cut() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
