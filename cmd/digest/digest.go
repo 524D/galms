@@ -3,7 +3,7 @@ package digest
 // Enzyme must return "true" if enzyme cuts at position pos in sequence seq
 type Enzyme func(seq string, pos int) bool
 
-// Enzyme must return "true" if enzyme fullfils creteria (e.g. length)
+// Filter must return "true" if peptide fullfils creteria (e.g. length)
 type Filter func(seq string) bool
 
 type Digestor struct {

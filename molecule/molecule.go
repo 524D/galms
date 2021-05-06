@@ -164,7 +164,7 @@ type aaForm struct {
 	formula string
 }
 
-// InitCommonMolecules initialized some common molecules
+// InitCommonMolecules initializes some common molecules
 // It must be called after (re-)initializing elements.Elems
 func InitCommonMolecules(e *elements.Elems) {
 	// Set up amino acid translation table

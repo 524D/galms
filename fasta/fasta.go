@@ -21,7 +21,7 @@ type Prot struct {
 	seq  string
 }
 
-// function that checks if sequence must be stored
+// Filter should return true if sequence must be stored
 type Filter func(Prot) bool
 
 func (f *Fasta) appendProtFiltered(prot Prot, filter Filter, fArgs ...interface{}) {
