@@ -16,11 +16,10 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "galms",
-	Short: "Mass Spectrometry tools build on the galms library",
+	Short: "Mass Spectrometry tools that use the galms library",
 	Long: `galms (Go App and Library for Mass Spectrometry) contains a collection of Mass Spectrometry tools.
 
-The tools are useful in their own right, but also serve as a demonstration
-of the galms library.`,
+The tools are useful in their own right, but also serve as a demonstration of the galms library.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
