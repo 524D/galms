@@ -36,7 +36,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/524D/galms/cmd/digest"
+	"github.com/524D/galms/digest"
 	"github.com/524D/galms/elements"
 	"github.com/524D/galms/fasta"
 	"github.com/524D/galms/mass"
