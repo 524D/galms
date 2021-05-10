@@ -1,5 +1,10 @@
 package digest
 
+import (
+	"errors"
+	"strings"
+)
+
 // Enzyme must return "true" if enzyme cuts at position pos in sequence seq
 type Enzyme func(seq string, pos int) bool
 
@@ -34,6 +39,36 @@ func maxInt(a, b int) int {
 	return b
 }
 
+// EnzymeInf contains info of cutting enzymes
+type EnzymeInf struct {
+	Name        string
+	Description string
+	Func        Enzyme
+}
+
+var enzymeInf = []EnzymeInf{
+	{`Trypsin`, `Cuts after K and R but not before P`, Trypsin},
+	{`Trypsin/P`, `Cuts after K and R`, TrypsinP},
+	{`Lys_C`, `Cuts after K but not before P`, LysC},
+	{`PepsinA`, `Cuts after F and L but not before P`, PepsinA},
+	{`Chymotrypsin`, `Cuts after F, W, Y, L but not before P`, ChymoTrypsin},
+}
+
+// Enzymes returns the build-in enzymes
+func Enzymes() []EnzymeInf {
+	return enzymeInf
+}
+
+// NamedEnzyme takes an enzyme name and returns the corresponding cutter function
+func NamedEnzyme(e string) (Enzyme, error) {
+	for _, enzInf := range enzymeInf {
+		if strings.EqualFold(e, enzInf.Name) {
+			return enzInf.Func, nil
+		}
+	}
+	return nil, errors.New(`unknown enzyme name`)
+}
+
 func Trypsin(seq string, i int) bool {
 	// Never happens:
 	// if i < 1 {
@@ -42,6 +77,29 @@ func Trypsin(seq string, i int) bool {
 	c1 := seq[i-1]
 	c2 := seq[i]
 	return (c1 == 'K' || c1 == 'R') && c2 != 'P'
+}
+
+func TrypsinP(seq string, i int) bool {
+	c1 := seq[i-1]
+	return c1 == 'K' || c1 == 'R'
+}
+
+func LysC(seq string, i int) bool {
+	c1 := seq[i-1]
+	c2 := seq[i]
+	return c1 == 'K' && c2 != 'P'
+}
+
+func PepsinA(seq string, i int) bool {
+	c1 := seq[i-1]
+	c2 := seq[i]
+	return (c1 == 'F' || c1 == 'L') && c2 != 'P'
+}
+
+func ChymoTrypsin(seq string, i int) bool {
+	c1 := seq[i-1]
+	c2 := seq[i]
+	return (c1 == 'F' || c1 == 'W' || c1 == 'Y' || c1 == 'L') && c2 != 'P'
 }
 
 func (d *Digestor) cleave(seq string) []string {

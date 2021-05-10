@@ -24,7 +24,7 @@ func TestDigestor_Cut(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := dSimple.Cut(tt.args.seq); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Digestor.Cut() = %v, want %v", got, tt.want)
+				t.Errorf("digest.Cut() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -43,7 +43,7 @@ func TestDigestor_Cut(t *testing.T) {
 	for _, tt := range tests2 {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := dUncleaved11.Cut(tt.args.seq); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Digestor.Cut() = %v, want %v", got, tt.want)
+				t.Errorf("digest.Cut() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -62,7 +62,7 @@ func TestDigestor_Cut(t *testing.T) {
 	for _, tt := range tests3 {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := dUncleaved01.Cut(tt.args.seq); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Digestor.Cut() = %v, want %v", got, tt.want)
+				t.Errorf("digest.Cut() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -82,7 +82,7 @@ func TestDigestor_Cut(t *testing.T) {
 	for _, tt := range tests4 {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := dLen5to10.Cut(tt.args.seq); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Digestor.Cut() = %v, want %v", got, tt.want)
+				t.Errorf("digest.Cut() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -104,7 +104,91 @@ func TestDigestor_Cut(t *testing.T) {
 	for _, tt := range tests5 {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := dRCutter.Cut(tt.args.seq); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Digestor.Cut() = %v, want %v", got, tt.want)
+				t.Errorf("digest.Cut() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+
+	e, _ := NamedEnzyme(`chymotrypsin`)
+	cutter := New(0, 0, nil, e)
+	tests6 := []struct {
+		name string
+		args args
+		want []string
+	}{
+		{
+			name: "Chymotrypsin",
+			args: args{seq: `MKWVTFISLLFLFSSAYSRGVFRRDAHKSEVAHRFKDLGEENFKALVLIAFAQYLQQCPF`},
+			want: []string{`MKW`, `VTF`, `ISL`, `L`, `F`, `L`, `F`, `SSAY`, `SRGVF`, `RRDAHKSEVAHRF`, `KDL`, `GEENF`, `KAL`, `VL`, `IAF`, `AQY`, `L`, `QQCPF`},
+		},
+	}
+	for _, tt := range tests6 {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := cutter.Cut(tt.args.seq); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("digest.Cut() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+
+}
+
+func TestEnzymes(t *testing.T) {
+	tests := []struct {
+		name string
+		want []EnzymeInf
+	}{
+		{
+			name: "",
+			want: []EnzymeInf{
+				{`Trypsin`, `Cuts after K and R but not before P`, Trypsin},
+				{`Trypsin/P`, `Cuts after K and R`, TrypsinP},
+				{`Lys_C`, `Cuts after K but not before P`, LysC},
+				{`PepsinA`, `Cuts after F and L but not before P`, PepsinA},
+				{`Chymotrypsin`, `Cuts after F, W, Y, L but not before P`, ChymoTrypsin},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Enzymes(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Enzymes() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNamedEnzyme(t *testing.T) {
+	type args struct {
+		e string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    Enzyme
+		wantErr bool
+	}{
+		{
+			name:    "Trypsin test",
+			args:    args{`trypsin`},
+			want:    Trypsin,
+			wantErr: false,
+		},
+		{
+			name:    "Invalid enzyme name test",
+			args:    args{`trapsin`},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := NamedEnzyme(tt.args.e)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("NamedEnzyme() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NamedEnzyme() = %v, want %v", got, tt.want)
 			}
 		})
 	}

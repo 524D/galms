@@ -209,22 +209,34 @@ var fastaCmd = &cobra.Command{
 			fastas = append(fastas, f)
 		}
 
-		for _, f := range fastas {
-			missing, err := cmd.Flags().GetString("missing")
-			if err != nil {
-				log.Fatalf("Getstrings 'missing' flag failed: %v", err)
-			}
-			contains, err := cmd.Flags().GetString("contains")
-			if err != nil {
-				log.Fatalf("Getstrings 'contains' flag failed: %v", err)
-			}
+		missing, err := cmd.Flags().GetString("missing")
+		if err != nil {
+			log.Fatalf("Getstrings 'missing' flag failed: %v", err)
+		}
+		contains, err := cmd.Flags().GetString("contains")
+		if err != nil {
+			log.Fatalf("Getstrings 'contains' flag failed: %v", err)
+		}
+		enzymeName, err := cmd.Flags().GetString("enzyme")
+		if err != nil {
+			log.Fatalf("Getstrings 'enzyme' flag failed: %v", err)
+		}
+		enzyme, err := digest.NamedEnzyme(enzymeName)
+		if err != nil {
+			log.Fatalf("%s: %v", enzymeName, err)
+		}
+		an, err := cmd.Flags().GetBool("analyse")
+		if err != nil {
+			log.Fatalf("Getstrings 'analyse' flag failed: %v", err)
+		}
+		pt, err := cmd.Flags().GetBool("proteotypic")
+		if err != nil {
+			log.Fatalf("Getstrings 'proteotypic' flag failed: %v", err)
+		}
 
-			an, err := cmd.Flags().GetBool("analyse")
-			if err != nil {
-				log.Fatalf("Getstrings 'analyse' flag failed: %v", err)
-			}
+		for _, f := range fastas {
 			if an {
-				analyse(f)
+				analyse(f, enzyme)
 			}
 
 			if contains != `` || missing != `` {
@@ -239,12 +251,8 @@ var fastaCmd = &cobra.Command{
 			}
 		}
 
-		pt, err := cmd.Flags().GetBool("proteotypic")
-		if err != nil {
-			log.Fatalf("Getstrings 'proteotypic' flag failed: %v", err)
-		}
 		if pt {
-			proteotypicPeps(fastas)
+			proteotypicPeps(fastas, enzyme)
 		}
 
 	},
@@ -265,6 +273,7 @@ func init() {
 
 	fastaCmd.PersistentFlags().StringP("missing", "m", "", "List proteins which don't contain the specified sequence")
 	fastaCmd.PersistentFlags().StringP("contains", "c", "", "List proteins which contain the specified sequence")
+	fastaCmd.PersistentFlags().StringP("enzyme", "e", "trypsin", "Use the specified cleavage enzyme <Trypsin (default) | Trypsin/P | Lys_C | PepsinA | Chymotrypsin>")
 	fastaCmd.PersistentFlags().BoolP("update", "u", false, "Update FASTA file")
 	fastaCmd.PersistentFlags().BoolP("analyse", "a", false, "Analyse proteins")
 	fastaCmd.PersistentFlags().BoolP("proteotypic", "p", false, "List proteotypic peptides")
@@ -425,13 +434,13 @@ func updateFASTA(name string, dir string) error {
 	return nil
 }
 
-func analyse(f fasta.Fasta) {
+func analyse(f fasta.Fasta, enzyme digest.Enzyme) {
 	e := elements.New()
 	molecule.InitCommonMolecules(e)
 	pepProteins := make(map[string][]fasta.Prot)
 	maxOccur := 0
 	f6to30 := func(s string) bool { l := len(s); return l >= 6 && l <= 30 }
-	dig := digest.New(0, 1, f6to30, nil)
+	dig := digest.New(0, 1, f6to30, enzyme)
 	sep := ``
 	for _, p := range f.Prots() {
 		seq := p.Sequence()
@@ -461,7 +470,7 @@ func analyse(f fasta.Fasta) {
 	for pep, prots := range pepProteins {
 		occurCnt[len(prots)] = pep
 	}
-	fmt.Printf("The most common tryptic peptide (%s) occurs in %d proteins\n", occurCnt[len(occurCnt)-1], len(occurCnt))
+	fmt.Printf("The most peptide (%s) occurs in %d proteins\n", occurCnt[len(occurCnt)-1], len(occurCnt))
 
 }
 
@@ -472,10 +481,10 @@ func analyse(f fasta.Fasta) {
 // Output is:
 // For each protein a list of proteotypic peptides. Proteotypic peptides that occur multiple
 // times in the same protein should be marked with the multiplicity between brackets e.g. (3)
-func proteotypicPeps(fastas []fasta.Fasta) {
+func proteotypicPeps(fastas []fasta.Fasta, enzyme digest.Enzyme) {
 	// Count number of occurences in different proteins of each peptide
 	isoPepCount := make(map[string]int)
-	dig := digest.New(0, 0, nil, nil)
+	dig := digest.New(0, 0, nil, enzyme)
 	// Pass one: determine which peptides are proteotypic
 	for _, f := range fastas {
 		for _, p := range f.Prots() {
