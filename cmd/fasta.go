@@ -351,6 +351,13 @@ func fuzzyNameFile(name string, dir string) (string, error) {
 // and is uncompressed before writing to disk
 func download(url string, dir string) error {
 	pn := urlToPath(url, dir)
+
+	// Make sure directory exists
+	err := os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
 	// Create a temporary file for download
 	fn := urlToFilename(url)
 	tmpFile, err := ioutil.TempFile(dir, fn)
