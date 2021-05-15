@@ -252,7 +252,8 @@ var fastaCmd = &cobra.Command{
 		}
 
 		if pt {
-			proteotypicPeps(fastas, enzyme)
+			pts := proteotypicPeps(fastas, enzyme)
+			printProteotypicPeps(pts)
 		}
 
 	},
@@ -476,6 +477,16 @@ func analyse(f fasta.Fasta, enzyme digest.Enzyme) {
 
 }
 
+type proteoTypic struct {
+	prot   fasta.Prot
+	pepInf []pepInfo
+}
+
+type pepInfo struct {
+	pep   string
+	count int
+}
+
 // Print a list of proteotypic peptides
 // Proteotypic peptides are peptides that are unique for a specific protein
 // Unique should be interpreted in a Mass Spectrometric way:
@@ -483,8 +494,8 @@ func analyse(f fasta.Fasta, enzyme digest.Enzyme) {
 // Output is:
 // For each protein a list of proteotypic peptides. Proteotypic peptides that occur multiple
 // times in the same protein should be marked with the multiplicity between brackets e.g. (3)
-func proteotypicPeps(fastas []fasta.Fasta, enzyme digest.Enzyme) {
-	// Count number of occurences in different proteins of each peptide
+func proteotypicPeps(fastas []fasta.Fasta, enzyme digest.Enzyme) []proteoTypic {
+	// Count number of occurrences in different proteins of each peptide
 	isoPepCount := make(map[string]int)
 	dig := digest.New(0, 0, nil, enzyme)
 	// Pass one: determine which peptides are proteotypic
@@ -506,10 +517,11 @@ func proteotypicPeps(fastas []fasta.Fasta, enzyme digest.Enzyme) {
 		}
 	}
 	// Pass 2: print proteotypic peps
-	noPPepProts := make([]fasta.Prot, 0)
-	sep := ``
+	result := make([]proteoTypic, 0)
 	for _, f := range fastas {
 		for _, p := range f.Prots() {
+			var pt proteoTypic
+			pt.prot = p
 			pPeps := make([]string, 0)
 			seq := p.Sequence()
 			peps := dig.Cut(seq)
@@ -524,8 +536,6 @@ func proteotypicPeps(fastas []fasta.Fasta, enzyme digest.Enzyme) {
 			}
 			// Check if there are any proteotypic peptides
 			if len(pPeps) > 0 {
-				fmt.Printf("%s%s %s\n", sep, p.ID(), p.Description())
-				sep = "\n"
 				pPeps, pepCount := unique(pPeps)
 				// Order peptides by length, then alphabetic
 				sort.Slice(pPeps, func(i int, j int) bool {
@@ -535,24 +545,43 @@ func proteotypicPeps(fastas []fasta.Fasta, enzyme digest.Enzyme) {
 					}
 					return k < 0
 				})
-				for _, p := range pPeps {
-					fmt.Print(p)
-					if pepCount[p] > 1 {
-						fmt.Printf(" (%d)", pepCount[p])
-					}
-					fmt.Print("\n")
-				}
 
-			} else {
-				noPPepProts = append(noPPepProts, p)
+				for _, p := range pPeps {
+					var pi pepInfo
+					pi.pep = p
+					pi.count = pepCount[p]
+					pt.pepInf = append(pt.pepInf, pi)
+				}
+			}
+			result = append(result, pt)
+		}
+	}
+	return result
+}
+
+func printProteotypicPeps(pts []proteoTypic) {
+	// Print proteotypic peps
+	sep := ``
+	for _, p := range pts {
+		if p.pepInf != nil {
+			fmt.Printf("%s%s %s\n", sep, p.prot.ID(), p.prot.Description())
+			sep = "\n"
+
+			for _, p := range p.pepInf {
+				fmt.Print(p.pep)
+				if p.count > 1 {
+					fmt.Printf(" (%d)", p.count)
+				}
+				fmt.Print("\n")
 			}
 		}
 	}
 	// Print proteins without proteotypic peptides
-	if len(noPPepProts) > 0 {
-		fmt.Println("\nProteins without proteotypic peptides")
-		for _, p := range noPPepProts {
-			fmt.Printf("%s %s\n", p.ID(), p.Description())
+	firstTxt := "\nProteins without proteotypic peptides\n"
+	for _, p := range pts {
+		if p.pepInf == nil {
+			fmt.Printf("%s%s %s\n", firstTxt, p.prot.ID(), p.prot.Description())
+			firstTxt = ``
 		}
 	}
 }
