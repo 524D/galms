@@ -273,7 +273,7 @@ func init() {
 
 	fastaCmd.PersistentFlags().StringP("missing", "m", "", "List proteins which don't contain the specified sequence")
 	fastaCmd.PersistentFlags().StringP("contains", "c", "", "List proteins which contain the specified sequence")
-	fastaCmd.PersistentFlags().StringP("enzyme", "e", "trypsin", "Use the specified cleavage enzyme {Trypsin,Trypsin/P,Lys_C,PepsinA,Chymotrypsin}")
+	fastaCmd.PersistentFlags().StringP("enzyme", "e", "trypsin", "Use the specified cleavage enzyme {Trypsin,Trypsin_Simple, Trypsin/P,Lys_C,PepsinA,Chymotrypsin}")
 	fastaCmd.PersistentFlags().BoolP("update", "u", false, "Update FASTA file")
 	fastaCmd.PersistentFlags().BoolP("analyse", "a", false, "Analyse proteins")
 	fastaCmd.PersistentFlags().BoolP("proteotypic", "p", false, "List proteotypic peptides")

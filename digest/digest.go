@@ -18,6 +18,7 @@ type Digestor struct {
 	enzyme            Enzyme
 }
 
+// New returns a new Digestor. Parameters specify number of missed cleavages, enzyme,
 func New(minMissedCleavage int, maxMissedCleavage int, filter Filter, enzyme Enzyme) *Digestor {
 	var d Digestor
 
@@ -47,7 +48,8 @@ type EnzymeInf struct {
 }
 
 var enzymeInf = []EnzymeInf{
-	{`Trypsin`, `Cuts after K and R but not before P`, Trypsin},
+	{`Trypsin`, `See https://web.expasy.org/peptide_cutter/peptidecutter_enzymes.html`, Trypsin},
+	{`Trypsin_Simple`, `Cuts after K and R but not before P`, TrypsinSimple},
 	{`Trypsin/P`, `Cuts after K and R`, TrypsinP},
 	{`Lys_C`, `Cuts after K but not before P`, LysC},
 	{`PepsinA`, `Cuts after F and L but not before P`, PepsinA},
@@ -69,7 +71,41 @@ func NamedEnzyme(e string) (Enzyme, error) {
 	return nil, errors.New(`unknown enzyme name`)
 }
 
+// Trypsin cleaving according to https://web.expasy.org/peptide_cutter/peptidecutter_enzymes.html
 func Trypsin(seq string, i int) bool {
+	c1 := seq[i-1]
+	c2 := seq[i]
+	// First handle general case
+	cleave := (c1 == 'K' || c1 == 'R') && c2 != 'P'
+	if i > 1 {
+		c0 := seq[i-2]
+		if cleave {
+			// Prevent cleaving according to exception rules
+			if c1 == 'K' {
+				if (c0 == 'C' || c0 == 'D') && c2 == 'D' {
+					cleave = false
+				} else if c0 == 'C' && (c2 == 'H' || c2 == 'Y') {
+					cleave = false
+				}
+			} else if c1 == 'R' {
+				if c0 == 'C' && c2 == 'K' {
+					cleave = false
+				} else if c0 == 'R' && (c2 == 'H' || c2 == 'R') {
+					cleave = false
+				}
+			}
+		} else if c2 == 'P' {
+			// If R or R is followed by P, still cleave in special cases
+			if (c0 == 'W' && c1 == 'K') || (c0 == 'M' && c1 == 'R') {
+				cleave = true
+			}
+		}
+	}
+	return cleave
+}
+
+// TrypsinSimple cuts according to [KR] not followed by P
+func TrypsinSimple(seq string, i int) bool {
 	// Never happens:
 	// if i < 1 {
 	// 	return false

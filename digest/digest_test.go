@@ -2,11 +2,12 @@ package digest
 
 import (
 	"reflect"
+	"runtime"
 	"testing"
 )
 
 func TestDigestor_Cut(t *testing.T) {
-	dSimple := New(0, 0, nil, nil)
+	dSimple := New(0, 0, nil, TrypsinSimple)
 	type args struct {
 		seq string
 	}
@@ -28,7 +29,7 @@ func TestDigestor_Cut(t *testing.T) {
 			}
 		})
 	}
-	dUncleaved11 := New(1, 1, nil, nil)
+	dUncleaved11 := New(1, 1, nil, TrypsinSimple)
 	tests2 := []struct {
 		name string
 		args args
@@ -47,7 +48,7 @@ func TestDigestor_Cut(t *testing.T) {
 			}
 		})
 	}
-	dUncleaved01 := New(0, 1, nil, nil)
+	dUncleaved01 := New(0, 1, nil, TrypsinSimple)
 	tests3 := []struct {
 		name string
 		args args
@@ -67,7 +68,7 @@ func TestDigestor_Cut(t *testing.T) {
 		})
 	}
 	f5to10 := func(s string) bool { l := len(s); return l >= 5 && l <= 10 }
-	dLen5to10 := New(0, 0, f5to10, nil)
+	dLen5to10 := New(0, 0, f5to10, TrypsinSimple)
 	tests4 := []struct {
 		name string
 		args args
@@ -130,6 +131,26 @@ func TestDigestor_Cut(t *testing.T) {
 		})
 	}
 
+	cutter = New(0, 0, nil, nil)
+	tests7 := []struct {
+		name string
+		args args
+		want []string
+	}{
+		{
+			name: "Real Trypsin, with all special cases",
+			args: args{seq: `RRRMARAAKGGRPWKPEERPEMRPAACKDADKDRAACKHACKYAAKYCRKAARRHAARRAAA`},
+			want: []string{`R`, `RR`, `MAR`, `AAK`, `GGRPWK`, `PEERPEMR`, `PAACKDADKDR`, `AACKHACKYAAK`, `YCRK`, `AAR`, `RHAAR`, `R`, `AAA`},
+		},
+	}
+	for _, tt := range tests7 {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := cutter.Cut(tt.args.seq); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("digest.Cut() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+
 }
 
 func TestEnzymes(t *testing.T) {
@@ -140,7 +161,8 @@ func TestEnzymes(t *testing.T) {
 		{
 			name: "",
 			want: []EnzymeInf{
-				{`Trypsin`, `Cuts after K and R but not before P`, Trypsin},
+				{`Trypsin`, `See https://web.expasy.org/peptide_cutter/peptidecutter_enzymes.html`, Trypsin},
+				{`Trypsin_Simple`, `Cuts after K and R but not before P`, TrypsinSimple},
 				{`Trypsin/P`, `Cuts after K and R`, TrypsinP},
 				{`Lys_C`, `Cuts after K but not before P`, LysC},
 				{`PepsinA`, `Cuts after F and L but not before P`, PepsinA},
@@ -150,8 +172,19 @@ func TestEnzymes(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Enzymes(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Enzymes() = %v, want %v", got, tt.want)
+			// Can't use Deepequal to compare function pointers, so we do it manually
+			got := Enzymes()
+			for i := range tt.want {
+				name1 := tt.want[i].Name
+				name2 := got[i].Name
+				desc1 := tt.want[i].Description
+				desc2 := got[i].Description
+				funcName1 := runtime.FuncForPC(reflect.ValueOf(tt.want[i].Func).Pointer()).Name()
+				funcName2 := runtime.FuncForPC(reflect.ValueOf(got[i].Func).Pointer()).Name()
+				if name1 != name2 || desc1 != desc2 || funcName1 != funcName2 {
+					t.Errorf("Enzymes() = %v, want %v", got, tt.want)
+
+				}
 			}
 		})
 	}
@@ -187,8 +220,11 @@ func TestNamedEnzyme(t *testing.T) {
 				t.Errorf("NamedEnzyme() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			funcName1 := runtime.FuncForPC(reflect.ValueOf(tt.want).Pointer()).Name()
+			funcName2 := runtime.FuncForPC(reflect.ValueOf(got).Pointer()).Name()
+			if funcName1 != funcName2 {
 				t.Errorf("NamedEnzyme() = %v, want %v", got, tt.want)
+
 			}
 		})
 	}
