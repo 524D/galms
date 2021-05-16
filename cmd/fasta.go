@@ -252,8 +252,8 @@ var fastaCmd = &cobra.Command{
 		}
 
 		if pt {
-			pts := proteotypicPeps(fastas, enzyme)
-			printProteotypicPeps(pts)
+			pts := ProteotypicPeps(fastas, enzyme)
+			WriteProteotypicPeps(os.Stdout, pts)
 		}
 
 	},
@@ -487,14 +487,11 @@ type pepInfo struct {
 	count int
 }
 
-// Print a list of proteotypic peptides
+// ProteotypicPeps computes proteotypic peptides
 // Proteotypic peptides are peptides that are unique for a specific protein
 // Unique should be interpreted in a Mass Spectrometric way:
 //  equal mass amino acids are treated as the same.
-// Output is:
-// For each protein a list of proteotypic peptides. Proteotypic peptides that occur multiple
-// times in the same protein should be marked with the multiplicity between brackets e.g. (3)
-func proteotypicPeps(fastas []fasta.Fasta, enzyme digest.Enzyme) []proteoTypic {
+func ProteotypicPeps(fastas []fasta.Fasta, enzyme digest.Enzyme) []proteoTypic {
 	// Count number of occurrences in different proteins of each peptide
 	isoPepCount := make(map[string]int)
 	dig := digest.New(0, 0, nil, enzyme)
@@ -516,7 +513,7 @@ func proteotypicPeps(fastas []fasta.Fasta, enzyme digest.Enzyme) []proteoTypic {
 			}
 		}
 	}
-	// Pass 2: print proteotypic peps
+	// Pass 2: collect proteotypic peptide details
 	result := make([]proteoTypic, 0)
 	for _, f := range fastas {
 		for _, p := range f.Prots() {
@@ -559,28 +556,33 @@ func proteotypicPeps(fastas []fasta.Fasta, enzyme digest.Enzyme) []proteoTypic {
 	return result
 }
 
-func printProteotypicPeps(pts []proteoTypic) {
-	// Print proteotypic peps
+// WriteProteotypicPeps outputs proteotypic peptide info in a human readable format
+// First, proteins with proteotypic peptides are written.
+// For each protein all proteotypic peptides are listed. Proteotypic peptides that occur multiple
+// times in the same protein should be marked with the multiplicity between brackets e.g. (3)
+// Next, proteins without proteotypic peptides are written.
+func WriteProteotypicPeps(fp *os.File, pts []proteoTypic) {
+	// Write proteins with proteotypic peps
 	sep := ``
 	for _, p := range pts {
 		if p.pepInf != nil {
-			fmt.Printf("%s%s %s\n", sep, p.prot.ID(), p.prot.Description())
+			fmt.Fprintf(fp, "%s%s %s\n", sep, p.prot.ID(), p.prot.Description())
 			sep = "\n"
 
 			for _, p := range p.pepInf {
-				fmt.Print(p.pep)
+				fmt.Fprint(fp, p.pep)
 				if p.count > 1 {
-					fmt.Printf(" (%d)", p.count)
+					fmt.Fprintf(fp, " (%d)", p.count)
 				}
-				fmt.Print("\n")
+				fmt.Fprint(fp, "\n")
 			}
 		}
 	}
-	// Print proteins without proteotypic peptides
+	// Write proteins without proteotypic peptides
 	firstTxt := "\nProteins without proteotypic peptides\n"
 	for _, p := range pts {
 		if p.pepInf == nil {
-			fmt.Printf("%s%s %s\n", firstTxt, p.prot.ID(), p.prot.Description())
+			fmt.Fprintf(fp, "%s%s %s\n", firstTxt, p.prot.ID(), p.prot.Description())
 			firstTxt = ``
 		}
 	}
