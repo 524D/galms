@@ -1,3 +1,6 @@
+// Copyright 2021 Rob Marissen
+// SPDX-License-Identifier: MIT
+
 package molecule
 
 import (
