@@ -44,4 +44,4 @@ TODO: galms contains a build-in webserver to give easy to use network access to 
 
 ## Go advocacy
 
-[This is why we use Go](blob/main/whygo.md)
+[This is why we use Go](whygo.md)
