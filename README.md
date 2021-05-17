@@ -7,9 +7,15 @@
 *Don't use for any serious work. Until version 1.0 is reached any part of the software is likely to change in ways that break all
 dependencies.*
 
+## Building
+
+```bash
+go get https://github.com/524D/galms
+```
+
 ## Library
 
-The library in galms contains Go modules to enable simple creation of efficient MS software tools:
+The library in galms contains Go packages to enable simple creation of efficient MS software tools:
 
 * Read/write common files in common formats (mzML, mzID, mzXML, pepXML, FASTA)
 * Compute masses and isotopic distributions
@@ -35,3 +41,7 @@ All tools are accessed as sub commands of galms:
 ## Web server
 
 TODO: galms contains a build-in webserver to give easy to use network access to the full toolbox without installation.
+
+## Go advocacy
+
+[This is why we use Go](https://github.com/524D/galms/whygo.md)
