@@ -13,6 +13,8 @@ The following properties make software development in Go simple and efficient:
 * software developed in Go is easy to distribute, since it in normally compiled into a single executable with no external dependencies.
 * reliable builds of downloaded software are guaranteed by build-in versioning and software repository access
 
+## Still not convinced?
+
 Many high-profile companies use Go or have migrated to Go for key parts of their software development.
 Some examples with links to their Go software repositories:
 
