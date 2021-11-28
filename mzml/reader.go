@@ -48,23 +48,8 @@ func Read(reader io.Reader) (MzML, error) {
 	}
 
 	err := mzML.traverseScan()
-	// Don't know why cleaning up the namespace is needed, but Go's XML
-	// parser puts crap there
-	//	mzML.cleanNamespaceAttrs()
 	return mzML, err
 }
-
-// cleanNamespaceAttrs removes name space related attributes that are
-// made up by Go's XML parser
-// func (f *MzML) cleanNamespaceAttrs() {
-// 	var newAttrs []xml.Attr
-// 	// for i, attr := range f.content.Attrs {
-// 	// 	if attr == xml.Attr{Name : "x", Value:"y"} {
-// 	// 		newAtrrs = append(newAttrs, attr)
-// 	// 	}
-// 	// }
-// 	f.content.Attrs = newAttrs
-// }
 
 // binaryDataPars decodes the CV terms in a mzML binarydata section
 //
@@ -239,7 +224,7 @@ func (f *MzML) ReadScan(scanIndex int) ([]Peak, error) {
 	return p, nil
 }
 
-// Centroid returns true is the spectrum contains centroid peaks
+// Centroid returns true if the spectrum contains centroid peaks
 func (f *MzML) Centroid(scanIndex int) (bool, error) {
 	if scanIndex < 0 || scanIndex >= f.NumSpecs() {
 		return false, ErrInvalidScanIndex
@@ -358,7 +343,7 @@ func (f *MzML) ScanID(scanIndex int) (string, error) {
 	return "", ErrInvalidScanIndex
 }
 
-// GetPrecursors returns the mzML precursus struct for a given scanIndex
+// GetPrecursors returns the mzML precursors struct for a given scanIndex
 func (f *MzML) GetPrecursors(scanIndex int) ([]XMLprecursor, error) {
 	if scanIndex >= 0 && scanIndex < f.NumSpecs() {
 		var p []XMLprecursor
