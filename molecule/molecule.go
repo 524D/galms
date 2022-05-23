@@ -165,7 +165,14 @@ func Add(m1 Molecule, m2 Molecule) Molecule {
 			m.atoms[mi] = a
 		}
 	}
-	m.e = m1.e
+	if m1.e != nil {
+		m.e = m1.e
+	} else if m2.e != nil {
+		m.e = m2.e
+	} else {
+		m.e = elements.New()
+	}
+
 	return m
 }
 
