@@ -23,6 +23,9 @@ type AtomsCount struct {
 // Molecule represents a single molecule
 type Molecule struct {
 	atoms []AtomsCount
+	e     *elements.Elems
+	// FIXME: probably we should store an element pointer for each atom, so that elements
+	// derived from a table with different isotopic distribution can be handled
 }
 
 // ErrUnknownAACode Single letter AA code unknown
@@ -78,13 +81,15 @@ func SimpleFormula(f string, e *elements.Elems) (Molecule, error) {
 	}
 	// Sort atoms in element index
 	sort.Slice(m.atoms, func(i, j int) bool { return m.atoms[i].idx < m.atoms[j].idx })
+	m.e = e
 	return m, nil
 }
 
 // ChemicalFormula a molecule to a string
-func ChemicalFormula(m Molecule, e *elements.Elems) (string, error) {
+func ChemicalFormula(m Molecule) (string, error) {
 	var f string
 
+	e := m.e
 	for _, a := range m.atoms {
 		// Ignore elements with zero (or negative) count
 		if a.count > 0 {
@@ -127,7 +132,9 @@ func PepProt(p string) (Molecule, error) {
 }
 
 // Add two molecules. The atoms in the molecules must be sorted by atom index
+// The molecules must use the same elements table (this is not checked)
 func Add(m1 Molecule, m2 Molecule) Molecule {
+
 	var m Molecule
 	// Make sure 2 have enough room even if both molecules contain
 	// completely different atoms
@@ -158,7 +165,7 @@ func Add(m1 Molecule, m2 Molecule) Molecule {
 			m.atoms[mi] = a
 		}
 	}
-
+	m.e = m1.e
 	return m
 }
 
