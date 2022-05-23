@@ -30,7 +30,6 @@ import (
 //
 func Analyse(f Fasta, enzyme digest.Enzyme) {
 	e := elements.New()
-	molecule.InitCommonMolecules(e)
 	pepProteins := make(map[string][]Prot)
 	maxOccur := 0
 	f6to30 := func(s string) bool { l := len(s); return l >= 6 && l <= 30 }

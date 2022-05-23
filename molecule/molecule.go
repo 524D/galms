@@ -26,14 +26,19 @@ type Molecule struct {
 }
 
 // ErrUnknownAACode Single letter AA code unknown
-var ErrUnknownAACode = errors.New("Unknown amino acid code")
+var ErrUnknownAACode = errors.New("unknown amino acid code")
+
+func init() {
+	e := elements.New()
+	InitCommonMolecules(e)
+}
 
 // Atoms returns the atoms/count of a molecule
 func (m *Molecule) Atoms() []AtomsCount {
 	return m.atoms
 }
 
-// IdxCount retruns the index and count of an atom in a molecule
+// IdxCount returns the index and count of an atom in a molecule
 func (ac *AtomsCount) IdxCount() (int, int) {
 	return ac.idx, ac.count
 }
@@ -168,7 +173,7 @@ type aaForm struct {
 }
 
 // InitCommonMolecules initializes some common molecules
-// It must be called after (re-)initializing elements.Elems
+// It only needs to be called in case elements.Elems is initialized with a non-standard table
 func InitCommonMolecules(e *elements.Elems) {
 	// Set up amino acid translation table
 	aaList := []aaForm{
