@@ -4,6 +4,7 @@
 
 ![CodeQL](https://github.com/524D/galms/actions/workflows/codeql-analysis.yml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/524D/galms)](https://goreportcard.com/report/github.com/524D/galms)
+[![Coverage Status](https://coveralls.io/repos/github/524D/galms/badge.svg?branch=main)](https://coveralls.io/github/524D/galms?branch=main)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/524D/galms/blob/master/LICENSE)
 
 # *WARNING*
