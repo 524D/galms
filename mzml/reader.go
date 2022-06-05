@@ -261,7 +261,7 @@ func (f *MzML) MSLevel(scanIndex int) (int, error) {
 
 	for _, cvParam := range f.content.Run.SpectrumList.Spectrum[scanIndex].CvPar {
 		if cvParam.Accession == "MS:1000511" { // ms level
-			msLevel, err := strconv.ParseInt(cvParam.Value, 10, 64)
+			msLevel, err := strconv.ParseInt(cvParam.Value, 10, 32)
 			return int(msLevel), err
 		}
 	}
