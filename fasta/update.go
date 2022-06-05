@@ -151,7 +151,7 @@ func UniprotURL(name string) (string, error) {
 // Convert a download URL to the filename that will be used to store the file
 func urlToFilename(url string) string {
 	fn := url[strings.LastIndex(url, "/")+1:]
-	// Files are uncompressed before storing, remove .gz extention
+	// Files are uncompressed before storing, remove .gz extension
 	fn = strings.TrimSuffix(fn, `.gz`)
 	return fn
 }

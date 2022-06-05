@@ -144,7 +144,7 @@ func isofyPep(pep string) string {
 	return strings.Replace(pep, "I", "L", -1)
 }
 
-// Remove peptides that contian invalid characters from slice
+// Remove peptides that contain invalid characters from slice
 func removeInvalidSeq(peps []string) []string {
 	validPeps := make([]string, 0)
 	for _, pep := range peps {

@@ -46,7 +46,7 @@ func TestSimpleFormula(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Re occuring elements",
+			name: "Re occurring elements",
 			args: args{`H2C3OH`, elms},
 			want: Molecule{
 				atoms: []AtomsCount{

@@ -13,7 +13,7 @@ import (
 	"github.com/524D/galms/molecule"
 )
 
-// Analyse obtains some common properties for protines in a FASTA file
+// Analyse obtains some common properties for proteins in a FASTA file
 // - length/mass distribution distribution
 // - number of proteins in certain class,
 //   e.g.:
