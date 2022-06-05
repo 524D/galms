@@ -1,4 +1,15 @@
 on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning' 
+        type: choice
+        options:
+        - info
+        - warning
+        - debug 
   push:
     branches:
       - master
@@ -26,7 +37,7 @@ jobs:
     strategy:
       matrix:
         go-version: [1.18.x]
-        platform: [ubuntu-latest, macos-latest, windows-latest]
+        platform: [ubuntu-latest] # , macos-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Install Go
