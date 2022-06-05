@@ -2,7 +2,12 @@
 
 **G**o **A**pp and **L**ibrary for **M**ass **S**pectrometry
 
-# * WARNING *
+![CodeQL](https://github.com/524D/galms/actions/workflows/codeql-analysis.yml/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/524D/galms)](https://goreportcard.com/report/github.com/524D/galms)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/524D/galms/blob/master/LICENSE)
+
+# *WARNING*
+
 *GALMS is "work in progress".*
 *Don't use for any serious work. Until version 1.0 is reached any part of the software is likely to change in ways that break all
 dependencies.*
@@ -10,9 +15,11 @@ dependencies.*
 ## Building
 
 Minimum required Go version: 1.16
+
 ```bash
 go get github.com/524D/galms
 ```
+
 This puts the `galms` (for Windows users: `galms.exe`) app into directory `${GOPATH}/bin`
 
 ## Library
