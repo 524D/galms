@@ -12,6 +12,7 @@ import (
 )
 
 // Read reads mzIdentML content from io.reader
+// TODO: Handle incorrect mzID files which have the first letter of the MzIdentML in lower case
 func Read(reader io.Reader) (MzIdentML, error) {
 	var mzIdentML MzIdentML
 	d := xml.NewDecoder(reader)

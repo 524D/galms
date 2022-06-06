@@ -11,7 +11,7 @@ import (
 // Types for parsing mzIdentML
 
 // MzIdentML holds only the part of mzIdentML files
-// in which we are interrested
+// in which we are interested
 type MzIdentML struct {
 	seqID2PepIdx map[string]int
 	identList    []identRef
