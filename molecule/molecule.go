@@ -60,14 +60,14 @@ func SimpleFormula(f string, e *elements.Elems) (Molecule, error) {
 		// em[1] holds the elements string
 		elCount.idx, err = e.ElemIdx(em[1])
 		if err != nil {
-			return m, err
+			return Molecule{}, err
 		}
 		if em[2] == `` {
 			elCount.count = 1
 		} else {
 			elCount.count, err = strconv.Atoi(em[2])
 			if err != nil {
-				return m, err
+				return Molecule{}, err
 			}
 		}
 		// If we already encountered this element previously,
@@ -133,6 +133,7 @@ func PepProt(p string) (Molecule, error) {
 
 // Add two molecules. The atoms in the molecules must be sorted by atom index
 // The molecules must use the same elements table (this is not checked)
+// FIXME: handle situation where molecules have different element pointer
 func Add(m1 Molecule, m2 Molecule) Molecule {
 
 	var m Molecule
@@ -141,6 +142,7 @@ func Add(m1 Molecule, m2 Molecule) Molecule {
 	m.atoms = make([]AtomsCount, len(m1.atoms), len(m1.atoms)+len(m2.atoms))
 
 	copy(m.atoms, m1.atoms)
+	m.e = m1.e
 	mi := 0
 
 	for i, a := range m2.atoms {

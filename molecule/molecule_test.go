@@ -31,6 +31,7 @@ func TestSimpleFormula(t *testing.T) {
 					{idx: 7, count: 4},
 					{idx: 15, count: 1},
 				},
+				e: elms,
 			},
 			wantErr: false,
 		},
@@ -42,6 +43,7 @@ func TestSimpleFormula(t *testing.T) {
 					{idx: 10, count: 1},
 					{idx: 16, count: 1},
 				},
+				e: elms,
 			},
 			wantErr: false,
 		},
@@ -54,25 +56,20 @@ func TestSimpleFormula(t *testing.T) {
 					{idx: 5, count: 3},
 					{idx: 7, count: 1},
 				},
+				e: elms,
 			},
 			wantErr: false,
 		},
 		{
-			name: "Incorrect formula1",
-			args: args{`NaCw`, elms},
-			want: Molecule{
-				atoms: []AtomsCount{
-					{idx: 10, count: 1},
-				},
-			},
+			name:    "Incorrect formula1",
+			args:    args{`NaCw`, elms},
+			want:    Molecule{},
 			wantErr: true,
 		},
 		{
-			name: "Incorrect formula2",
-			args: args{`Na3333333333333333333333333333`, elms},
-			want: Molecule{
-				atoms: nil,
-			},
+			name:    "Incorrect formula2",
+			args:    args{`Na3333333333333333333333333333`, elms},
+			want:    Molecule{},
 			wantErr: true,
 		},
 	}
