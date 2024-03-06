@@ -71,7 +71,12 @@ func (m *MzIdentML) Ident(i int) (Identification, error) {
 	ident.PepSeq = m.content.Peptide[pepIdx].PeptideSequence
 	ident.PepID = m.content.Peptide[pepIdx].ID
 	ident.ModMass = float64(0)
-	ident.Charge = m.content.SpectrumIdentificationResult[specIDIdx].SpectrumIdentificationItem[specResultIdx].ChargeState
+	SpectrumIdentificationItem := m.content.SpectrumIdentificationResult[specIDIdx].SpectrumIdentificationItem[specResultIdx]
+	ident.Charge = SpectrumIdentificationItem.ChargeState
+	ident.CalculatedMassToCharge = SpectrumIdentificationItem.CalculatedMassToCharge
+	ident.ExperimentalMassToCharge = SpectrumIdentificationItem.ExperimentalMassToCharge
+	ident.PassThreshold = SpectrumIdentificationItem.PassThreshold
+	ident.Rank = SpectrumIdentificationItem.Rank
 	for _, mod := range m.content.Peptide[pepIdx].Modification {
 		ident.ModMass += mod.MonoisotopicMassDelta
 	}

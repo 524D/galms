@@ -25,13 +25,17 @@ type identRef struct {
 }
 
 type Identification struct {
-	PepSeq        string
-	PepID         string
-	Charge        int
-	ModMass       float64
-	SpecID        string
-	RetentionTime float64
-	Cv            []cvParam
+	PepSeq                   string
+	PepID                    string
+	Charge                   int
+	ExperimentalMassToCharge float64
+	CalculatedMassToCharge   float64
+	PassThreshold            bool
+	Rank                     int
+	ModMass                  float64
+	SpecID                   string
+	RetentionTime            float64
+	Cv                       []cvParam
 }
 
 type mzIdentMLContent struct {
