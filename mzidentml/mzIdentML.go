@@ -60,9 +60,13 @@ type spectrumIdentificationResult struct {
 }
 
 type spectrumIdentificationItem struct {
-	ChargeState int       `xml:"chargeState,attr"`
-	PeptideRef  string    `xml:"peptide_ref,attr"`
-	CvPar       []cvParam `xml:"cvParam"`
+	ChargeState              int       `xml:"chargeState,attr"`
+	PeptideRef               string    `xml:"peptide_ref,attr"`
+	Rank                     int       `xml:"rank,attr"`
+	ExperimentalMassToCharge float64   `xml:"experimentalMassToCharge,attr"`
+	CalculatedMassToCharge   float64   `xml:"calculatedMassToCharge,attr"`
+	PassThreshold            bool      `xml:"passThreshold,attr"`
+	CvPar                    []cvParam `xml:"cvParam"`
 }
 
 type cvParam struct {
