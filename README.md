@@ -18,7 +18,7 @@ dependencies.*
 Minimum required Go version: 1.16
 
 ```bash
-go get github.com/524D/galms
+go install github.com/524D/galms@latest
 ```
 
 This puts the `galms` (for Windows users: `galms.exe`) app into directory `${GOPATH}/bin`
